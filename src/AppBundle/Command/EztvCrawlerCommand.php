@@ -5,6 +5,7 @@ namespace AppBundle\Command;
 use Amp\Artax\Response;
 use AppBundle\Entity\Magnet;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -43,20 +44,21 @@ class EztvCrawlerCommand extends ContainerAwareCommand
         $pages = 1500;
         $em = $this->getContainer()->get('doctrine')->getManager();
         $printer = new SymfonyStyle($input, $output);
-
         $client = new Client();
-        $urlsToCrawl = [];
 
         foreach(range(1, $pages) as $index){
-            $printer->section('Crawling page '.$index);
             $url = "https://eztv.ag/page_$index";
-            $urlsToCrawl[] = $url;
+            $printer->section('Crawling page '.$url);
             $crawler = $client->request('GET', $url);
             $crawler->filter('tr.forum_header_border')->each(function ($node) use ($printer, $em) {
                 $children = $node->children();
                 $magnetLinkNode = $children->filter('a.magnet')->first();
-                if(!is_null($magnetLinkNode) && strstr($magnetLinkNode->attr('href'), 'magnet:')){
-                    $seeders = $children->filter('td font')->text();
+                if(!empty($magnetLinkNode) && strstr($magnetLinkNode->attr('href'), 'magnet:')){
+                    if(!empty($children->filter('td font')->count())){
+                        $seeders = $children->filter('td font')->text();
+                    }else{
+                        $seeders = null;
+                    }
                     $printer->writeln('Found '.$magnetLinkNode->attr('title'));
                     $hash = sha1($magnetLinkNode->attr('title'));
                     $magnet = $this->getContainer()->get('doctrine')
