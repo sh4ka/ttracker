@@ -68,7 +68,7 @@ class EztvCrawlerCommand extends ContainerAwareCommand
                     $hash = sha1($magnetLinkNode->attr('title'));
                     $magnet = $this->getContainer()->get('doctrine')
                         ->getRepository('AppBundle:Magnet')
-                        ->findBy(['hash' => $hash]);
+                        ->findOneBy(['hash' => $hash]);
                     if(!$magnet){
                         $magnet = new Magnet();
                         $magnet->setHash($hash);
