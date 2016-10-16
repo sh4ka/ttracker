@@ -37,8 +37,8 @@ class CrawlerCommand extends ContainerAwareCommand
             'Starting'
         );
         //$this->crawlEztv($input, $output);
-        $this->crawlIsohunt($input, $output);
-        //$this->crawl1337x($input, $output);
+        //$this->crawlIsohunt($input, $output);
+        $this->crawl1337x($input, $output);
     }
 
     protected function crawlEztv(InputInterface $input, OutputInterface $output){
@@ -177,7 +177,6 @@ class CrawlerCommand extends ContainerAwareCommand
                 });
 
                 $promiseArray = (new ArtaxClient())->requestMulti($listOfLinks, $options = [
-                    ArtaxClient::OP_VERBOSITY => ArtaxClient::VERBOSE_ALL,
                     ArtaxClient::OP_HOST_CONNECTION_LIMIT => 5
                 ]);
 
@@ -190,7 +189,7 @@ class CrawlerCommand extends ContainerAwareCommand
                 foreach ($responses as $key => $response) {
                     if ($response->getStatus() == 200) {
                         $crawler2 = new Crawler($response->getBody());
-                        $name = trim($crawler2->filter('h1.torrent-header')->first()->text());
+                        $name = trim($crawler2->filter('div.box-info-heading h1')->first()->text());
                         $magnetLink = $crawler2->filter('a.btn-magnet')->first()->attr('href');
                         $printer->writeln('Found ' . $name);
                         $hash = sha1($name);
