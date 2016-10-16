@@ -55,7 +55,7 @@ class EztvCrawlerCommand extends ContainerAwareCommand
             $crawler->filter('tr.forum_header_border')->each(function ($node) use ($printer, $em) {
                 $children = $node->children();
                 $magnetLinkNode = $children->filter('a.magnet')->first();
-                if(strstr($magnetLinkNode->attr('href'), 'magnet:')){
+                if(!is_null($magnetLinkNode) && strstr($magnetLinkNode->attr('href'), 'magnet:')){
                     $seeders = $children->filter('td font')->text();
                     $printer->writeln('Found '.$magnetLinkNode->attr('title'));
                     $hash = sha1($magnetLinkNode->attr('title'));
