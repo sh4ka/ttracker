@@ -52,18 +52,22 @@ class EztvCrawlerCommand extends ContainerAwareCommand
             $url = "https://eztv.ag/page_$index";
             $urlsToCrawl[] = $url;
             $crawler = $client->request('GET', $url);
-            $crawler->filter('a')->each(function ($node) use ($printer, $em) {
-                if(strstr($node->attr('href'), 'magnet:')){
-                    $printer->writeln('Found '.$node->attr('title'));
-                    $hash = sha1($node->attr('title'));
+            $crawler->filter('tr.forum_header_border')->each(function ($node) use ($printer, $em) {
+                $children = $node->children();
+                $magnetLinkNode = $children->filter('a.magnet')->first();
+                if(strstr($magnetLinkNode->attr('href'), 'magnet:')){
+                    $seeders = $children->filter('td font')->text();
+                    $printer->writeln('Found '.$magnetLinkNode->attr('title'));
+                    $hash = sha1($magnetLinkNode->attr('title'));
                     $magnet = $this->getContainer()->get('doctrine')
                         ->getRepository('AppBundle:Magnet')
                         ->findBy(['hash' => $hash]);
                     if(!$magnet){
                         $magnet = new Magnet();
                         $magnet->setHash($hash);
-                        $magnet->setName($node->attr('title'));
-                        $magnet->setLink($node->attr('href'));
+                        $magnet->setName($magnetLinkNode->attr('title'));
+                        $magnet->setLink($magnetLinkNode->attr('href'));
+                        $magnet->setSeeders($seeders);
                         $em->persist($magnet);
                     }
                     $em->flush();

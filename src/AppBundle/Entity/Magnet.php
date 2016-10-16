@@ -42,6 +42,13 @@ class Magnet
      */
     private $hash;
 
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="seeders", type="integer", nullable=true)
+     */
+    private $seeders;
+
 
     /**
      * Get id
@@ -124,5 +131,23 @@ class Magnet
     {
         return $this->hash;
     }
+
+    /**
+     * @return int
+     */
+    public function getSeeders()
+    {
+        return $this->seeders;
+    }
+
+    /**
+     * @param int $seeders
+     */
+    public function setSeeders($seeders)
+    {
+        $this->seeders = $seeders;
+    }
+
+
 }
 
