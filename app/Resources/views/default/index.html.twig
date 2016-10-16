@@ -58,6 +58,7 @@
                 <tr>
                     <th>id</th>
                     <th>Title</th>
+                    <th>Disponibilidad</th>
                     <th>Link</th>
                 </tr>
             </thead>
@@ -66,6 +67,7 @@
                     <tr>
                         <th>{{ torrent.id }}</th>
                         <th>{{ torrent.name }}</th>
+                        <th>{{ torrent.seeders }}</th>
                         <th>
                             <a href="{{ torrent.link }}" class="btn btn-success btn-sm" title="{{ torrent.name }}">
                                 <span class="glyphicon glyphicon-magnet" aria-hidden="true"></span>
