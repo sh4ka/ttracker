@@ -52,13 +52,18 @@ class EztvCrawlerCommand extends ContainerAwareCommand
             $crawler = $client->request('GET', $url);
             $crawler->filter('tr.forum_header_border')->each(function ($node) use ($printer, $em) {
                 $children = $node->children();
-                $magnetLinkNode = $children->filter('a.magnet')->first();
+                if(!empty($children->filter('a.magnet')->count())){
+                    $magnetLinkNode = $children->filter('a.magnet')->first();
+                }else{
+                    return;
+                }
                 if(!empty($magnetLinkNode) && strstr($magnetLinkNode->attr('href'), 'magnet:')){
                     if(!empty($children->filter('td font')->count())){
                         $seeders = $children->filter('td font')->text();
                     }else{
                         $seeders = null;
                     }
+
                     $printer->writeln('Found '.$magnetLinkNode->attr('title'));
                     $hash = sha1($magnetLinkNode->attr('title'));
                     $magnet = $this->getContainer()->get('doctrine')
