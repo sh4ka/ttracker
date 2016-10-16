@@ -82,19 +82,27 @@ class LeetxCrawlerCommand extends ContainerAwareCommand
                     if ($response->getStatus() == 200) {
                         $crawler2 = new Crawler($response->getBody());
                         $name = trim($crawler2->filter('div.box-info-heading h1')->first()->text());
+                        $seeders = $crawler2->filter('span.seeds')->first()->text();
                         $magnetLink = $crawler2->filter('a.btn-magnet')->first()->attr('href');
                         $printer->writeln('Found ' . $name);
                         $hash = sha1($name);
                         $magnet = $this->getContainer()->get('doctrine')
                             ->getRepository('AppBundle:Magnet')
                             ->findOneBy(['hash' => $hash]);
+                        /** @var Magnet $magnet */
                         if (null == $magnet) {
                             $magnet = new Magnet();
                             $magnet->setHash($hash);
                             $magnet->setName($name);
+                            $magnet->setSeeders($seeders);
                             $magnet->setLink($magnetLink);
-                            $em->persist($magnet);
+                        } else {
+                            $magnet->setHash($hash);
+                            $magnet->setName($name);
+                            $magnet->setSeeders($seeders);
+                            $magnet->setLink($magnetLink);
                         }
+                        $em->persist($magnet);
                         $em->flush();
                     }
                     sleep(1);
