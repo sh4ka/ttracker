@@ -36,7 +36,7 @@ class DefaultController extends Controller
             $query = $em->createQuery(
                 "SELECT m
                 FROM AppBundle:Magnet m
-                WHERE m.name LIKE :title"
+                WHERE m.name LIKE :title ORDER BY m.seeders DESC"
             )->setParameter('title', $search.'%');
 
             $magnets = $query->getResult();
