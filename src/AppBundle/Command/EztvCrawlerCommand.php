@@ -76,6 +76,12 @@ class EztvCrawlerCommand extends ContainerAwareCommand
                         $magnet->setLink($magnetLinkNode->attr('href'));
                         $magnet->setSeeders($seeders);
                         $em->persist($magnet);
+                    } else {
+                        $magnet->setHash($hash);
+                        $magnet->setName($magnetLinkNode->attr('title'));
+                        $magnet->setLink($magnetLinkNode->attr('href'));
+                        $magnet->setSeeders($seeders);
+                        $em->persist($magnet);
                     }
                     $em->flush();
                 }
