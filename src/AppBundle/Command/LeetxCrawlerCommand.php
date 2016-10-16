@@ -45,7 +45,8 @@ class LeetxCrawlerCommand extends ContainerAwareCommand
         $client = new Client();
         $page = 1;
         $rootUrls = [
-            "https://1337x.unblocked.vip/cat/Movies/[page]/"
+            "https://1337x.unblocked.vip/cat/Movies/[page]/",
+            "https://1337x.unblocked.vip/cat/Games/[page]/"
         ];
         $maxPages = null;
         foreach($rootUrls as $rootUrl){
