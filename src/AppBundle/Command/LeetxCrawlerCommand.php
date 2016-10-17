@@ -4,6 +4,7 @@ namespace AppBundle\Command;
 
 use Amp\Artax\Response;
 use AppBundle\Entity\Magnet;
+use GuzzleHttp\Exception\ConnectException;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -48,6 +49,7 @@ class LeetxCrawlerCommand extends ContainerAwareCommand
             "https://1337x.unblocked.vip/cat/Movies/[page]/",
             "https://1337x.unblocked.vip/cat/Games/[page]/"
         ];
+        $failedLinks = [];
         $maxPages = null;
         foreach($rootUrls as $rootUrl){
             //  first page, get max pages along with the info
@@ -68,14 +70,15 @@ class LeetxCrawlerCommand extends ContainerAwareCommand
                     $listOfLinks[] = 'https://1337x.unblocked.vip'. $node->attr('href');
                 });
 
-                $promiseArray = (new ArtaxClient())->requestMulti($listOfLinks, $options = [
-                    ArtaxClient::OP_HOST_CONNECTION_LIMIT => 5
-                ]);
-
-                try{
-                    $responses = \Amp\wait(\Amp\all($promiseArray));
-                } catch (\Exception $e){
-                    $responses = [];
+                $allCompleted = false;
+                while($allCompleted != true){
+                    $promiseArray = $this->sendCrawlPromise($listOfLinks);
+                    try{
+                        $responses = \Amp\wait(\Amp\all($promiseArray));
+                        $allCompleted = true;
+                    } catch (\Exception $e){
+                        sleep(15);
+                    }
                 }
 
                 /**
@@ -114,5 +117,9 @@ class LeetxCrawlerCommand extends ContainerAwareCommand
                 $em->clear();
             }
         }
+    }
+
+    protected function sendCrawlPromise($listOfLinks, $options = [ArtaxClient::OP_HOST_CONNECTION_LIMIT => 5]){
+        return (new ArtaxClient())->requestMulti($listOfLinks, $options);
     }
 }
