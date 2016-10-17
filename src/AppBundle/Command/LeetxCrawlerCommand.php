@@ -72,7 +72,11 @@ class LeetxCrawlerCommand extends ContainerAwareCommand
                     ArtaxClient::OP_HOST_CONNECTION_LIMIT => 5
                 ]);
 
-                $responses = \Amp\wait(\Amp\all($promiseArray));
+                try{
+                    $responses = \Amp\wait(\Amp\all($promiseArray));
+                } catch (\Exception $e){
+                    $responses = [];
+                }
 
                 /**
                  * @var int $key
