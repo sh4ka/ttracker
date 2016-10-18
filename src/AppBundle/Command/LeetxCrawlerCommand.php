@@ -71,6 +71,7 @@ class LeetxCrawlerCommand extends ContainerAwareCommand
                 });
 
                 $allCompleted = false;
+                $responses = [];
                 while($allCompleted != true){
                     $promiseArray = $this->sendCrawlPromise($listOfLinks);
                     try{
