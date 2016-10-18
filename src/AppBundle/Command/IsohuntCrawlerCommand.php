@@ -97,8 +97,10 @@ class IsohuntCrawlerCommand extends ContainerAwareCommand
                         $crawler2 = new Crawler($response->getBody());
                         $name = trim($crawler2->filter('h1.torrent-header')->first()->text());
                         $magnetLink = $crawler2->filter('a.btn-magnet')->first()->attr('href');
+                        $seeders = trim($crawler2->filter('span.seeds')->first()->text());
                         $printer->writeln('Found ' . $name);
                         $hash = sha1($name);
+                        /** @var Magnet $magnet */
                         $magnet = $this->getContainer()->get('doctrine')
                             ->getRepository('AppBundle:Magnet')
                             ->findOneBy(['hash' => $hash]);
@@ -107,8 +109,14 @@ class IsohuntCrawlerCommand extends ContainerAwareCommand
                             $magnet->setHash($hash);
                             $magnet->setName($name);
                             $magnet->setLink($magnetLink);
-                            $em->persist($magnet);
+                            $magnet->setSeeders($seeders);
+                        } else {
+                            $magnet->setHash($hash);
+                            $magnet->setName($name);
+                            $magnet->setLink($magnetLink);
+                            $magnet->setSeeders($seeders);
                         }
+                        $em->persist($magnet);
                         $em->flush();
                     }
                     sleep(1);
